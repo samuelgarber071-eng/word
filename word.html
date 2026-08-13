@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word 2019 Web Edition (Offline)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f3f2f1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Barra Superior do Word */
+        .header-title {
+            background-color: #2b579a;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Barra de Ferramentas / Ribbon */
+        .ribbon {
+            background-color: #f3f2f1;
+            border-bottom: 1px solid #e1dfdd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #2b579a;
+            padding-left: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .tab-btn.active {
+            background-color: #f3f2f1;
+            color: #2b579a;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+            opacity: 1;
+        }
+
+        .toolbar-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 16px;
+            align-items: center;
+            background: white;
+        }
+
+        .group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding-right: 12px;
+            border-right: 1px solid #e1dfdd;
+        }
+
+        button, select {
+            padding: 6px 10px;
+            border: 1px solid #c8c6c4;
+            background-color: white;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+        }
+
+        button:hover, select:hover {
+            background-color: #f3f2f1;
+            border-color: #8a8886;
+        }
+
+        button:active {
+            background-color: #edebe9;
+        }
+
+        input[type="color"] {
+            border: none;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            background: none;
+        }
+
+        /* Área de Edição (Folha A4) */
+        .editor-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            background-color: #e6e6e6;
+        }
+
+        .document-page {
+            width: 210mm;
+            min-height: 297mm;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 25mm;
+            outline: none;
+            font-family: 'Calibri', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background-color: #2b579a;
+            color: white;
+            padding: 4px 16px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        table, th, td {
+            border: 1px solid #a6a6a6;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <div class="header-title">
+        <span>Documento1 - Microsoft Word (Edição Web Offline)</span>
+        <span style="font-size: 11px;">100% Local</span>
+    </div>
+
+    <!-- Barra de Ferramentas / Ribbon -->
+    <div class="ribbon">
+        <div class="tabs">
+            <button class="tab-btn active">Página Inicial</button>
+        </div>
+
+        <div class="toolbar-panel">
+            <!-- Desfazer / Refazer -->
+            <div class="group">
+                <button onclick="execCmd('undo')" title="Desfazer (Ctrl+Z)">↩</button>
+                <button onclick="execCmd('redo')" title="Refazer (Ctrl+Y)">↪</button>
+            </div>
+
+            <!-- Fonte e Tamanho -->
+            <div class="group">
+                <select onchange="execCmd('fontName', this.value)" title="Fonte">
+                    <option value="Calibri">Calibri</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+
+                <select onchange="execCmd('fontSize', this.value)" title="Tamanho">
+                    <option value="1">8pt</option>
+                    <option value="2">10pt</option>
+                    <option value="3" selected>12pt</option>
+                    <option value="4">14pt</option>
+                    <option value="5">18pt</option>
+                    <option value="6">24pt</option>
+                    <option value="7">36pt</option>
+                </select>
+            </div>
+
+            <!-- Estilos de Texto -->
+            <div class="group">
+                <button onclick="execCmd('bold')" title="Negrito (Ctrl+B)"><b>B</b></button>
+                <button onclick="execCmd('italic')" title="Itálico (Ctrl+I)"><i>I</i></button>
+                <button onclick="execCmd('underline')" title="Sublinhado (Ctrl+U)"><u>U</u></button>
+                <button onclick="execCmd('strikeThrough')" title="Tachado"><s>S</s></button>
+                <button onclick="execCmd('subscript')" title="Subscrito">X<sub>2</sub></button>
+                <button onclick="execCmd('superscript')" title="Sobrescrito">X<sup>2</sup></button>
+            </div>
+
+            <!-- Cores -->
+            <div class="group">
+                <label title="Cor da Fonte" style="display:flex; align-items:center; gap:2px; font-size:12px; cursor:pointer;">
+                    🎨 <input type="color" onchange="execCmd('foreColor', this.value)" value="#000000">
+                </label>
+                <label title="Cor do Realce" style="display:flex; align-items:center; gap:2px; font-size:12px; cursor:pointer;">
+                    🖌️ <input type="color" onchange="execCmd('hiliteColor', this.value)" value="#ffffff">
+                </label>
+            </div>
+
+            <!-- Alinhamento -->
+            <div class="group">
+                <button onclick="execCmd('justifyLeft')" title="Alinhar à Esquerda">⬅</button>
+                <button onclick="execCmd('justifyCenter')" title="Centralizar">↔</button>
+                <button onclick="execCmd('justifyRight')" title="Alinhar à Direita">➡</button>
+                <button onclick="execCmd('justifyFull')" title="Justificar">☰</button>
+            </div>
+
+            <!-- Listas e Recuos -->
+            <div class="group">
+                <button onclick="execCmd('insertUnorderedList')" title="Marcadores">• Lista</button>
+                <button onclick="execCmd('insertOrderedList')" title="Numeração">1. Lista</button>
+                <button onclick="execCmd('indent')" title="Aumentar Recuo">➡️</button>
+                <button onclick="execCmd('outdent')" title="Diminuir Recuo">⬅️</button>
+            </div>
+
+            <!-- Inserção -->
+            <div class="group">
+                <button onclick="insertTable()" title="Inserir Tabela">📊 Tabela</button>
+                <button onclick="insertImage()" title="Inserir Imagem">🖼️ Imagem</button>
+                <button onclick="insertLink()" title="Inserir Link">🔗 Link</button>
+                <button onclick="execCmd('removeFormat')" title="Limpar Formatação">🧹 Limpar</button>
+            </div>
+
+            <!-- Ações do Arquivo -->
+            <div class="group">
+                <button onclick="downloadDoc()" style="background-color: #2b579a; color: white; font-weight: bold;">💾 Salvar (.doc)</button>
+                <button onclick="window.print()">🖨️ Imprimir / PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Edição -->
+    <div class="editor-container">
+        <div id="editor" class="document-page" contenteditable="true" spellcheck="true">
+            <h2>Bem-vindo ao Editor de Texto Offline</h2>
+            <p>Este é um documento de exemplo formatado em estilo folha <b>A4</b>. Você pode editar este texto, formatar, alterar fontes, cores, inserir tabelas e imagens.</p>
+            <p>Tudo funciona <u>100% offline</u> direto no seu navegador!</p>
+        </div>
+    </div>
+
+    <!-- Barra de Status -->
+    <div class="status-bar">
+        <div>Página 1 de 1</div>
+        <div>
+            <span id="word-count">Palavras: 0</span> | 
+            <span id="char-count">Caracteres: 0</span>
+        </div>
+    </div>
+
+    <script>
+        // Executar comandos de formatação de texto
+        function execCmd(command, value = null) {
+            document.execCommand(command, false, value);
+            updateStats();
+        }
+
+        // Inserir Tabela Personalizada
+        function insertTable() {
+            const rows = prompt("Número de linhas:", "3");
+            const cols = prompt("Número de colunas:", "3");
+            
+            if (rows && cols) {
+                let tableHTML = "<table border='1'>";
+                for (let i = 0; i < rows; i++) {
+                    tableHTML += "<tr>";
+                    for (let j = 0; j < cols; j++) {
+                        tableHTML += "<td>Texto</td>";
+                    }
+                    tableHTML += "</tr>";
+                }
+                tableHTML += "</table><br>";
+                document.execCommand('insertHTML', false, tableHTML);
+            }
+        }
+
+        // Inserir Imagem Local
+        function insertImage() {
+            const url = prompt("Cole o URL da imagem ou o caminho base64:", "https://via.placeholder.com/150");
+            if (url) {
+                document.execCommand('insertImage', false, url);
+            }
+        }
+
+        // Inserir Hiperlink
+        function insertLink() {
+            const url = prompt("Digite a URL:", "https://");
+            if (url) {
+                document.execCommand('createLink', false, url);
+            }
+        }
+
+        // Contagem de Palavras e Caracteres em Tempo Real
+        const editor = document.getElementById('editor');
+        const wordCountSpan = document.getElementById('word-count');
+        const charCountSpan = document.getElementById('char-count');
+
+        function updateStats() {
+            const text = editor.innerText || "";
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+
+            wordCountSpan.innerText = `Palavras: ${words}`;
+            charCountSpan.innerText = `Caracteres: ${chars}`;
+        }
+
+        editor.addEventListener('input', updateStats);
+        updateStats();
+
+        // Salvar Documento como arquivo editável (.doc / .html)
+        function downloadDoc() {
+            const content = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Documento</title></head>
+                <body>${editor.innerHTML}</body>
+                </html>
+            `;
+            const blob = new Blob(['\ufeff', content], {
+                type: 'application/msword'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Documento.doc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
